@@ -24,6 +24,11 @@ Registre mensalmente os seguintes dados, que serão inseridos manualmente ou aut
 
 # Planejamento
 
+## 0.1
+As seguintes condições devem ser atendidas:
+- O aplicativo deve possuir as três categorias iniciais - rendas, despesas e investimentos;
+- O aplicativo deve permitir a criação de subcategorias de acordo com a vontade do usuário;
+
 ## 1.0
 As seguintes condições devem ser atendidas:
 - O aplicativo deve possuir as três categorias iniciais - rendas, despesas e investimentos;
