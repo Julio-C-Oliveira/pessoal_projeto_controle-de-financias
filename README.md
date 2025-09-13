@@ -21,3 +21,16 @@ Registre mensalmente os seguintes dados, que serão inseridos manualmente ou aut
     - DataStore: Para armazenar configurações simples.
 - Backup e Sincronização: Firebase (Auth + Firestore).
 - UI: JetpackCompose.
+
+# Planejamento
+
+## 1.0
+As seguintes condições devem ser atendidas:
+- O aplicativo deve possuir as três categorias iniciais - rendas, despesas e investimentos;
+- O aplicativo deve permitir a criação de subcategorias de acordo com a vontade do usuário;
+- O aplicativo deve possuir os esquemas de visualização semanal, mensal e anual;
+- O aplicativo deve possuir um modo de exibir o quanto sobrou em cada semana, mês ou ano;
+- O aplicativo deve possuir um modo de exibir qual foi o valor de renda do ano, mês ou semana. Tanto em uma renda especifica, quanto no geral;
+- O aplicativo deve possuir um modo de exibir qual foi o valor de despesas do ano, mês ou semana. Tanto em uma despesa especifica, quanto no geral;
+- O aplicativo deve possuir um modo de exibir qual foi o valor investido do ano, mês ou semana. Tanto em um investimento especifico, quanto no geral;
+- O aplicativo deve permitir a criaçaõ de um planejamento para o próximo mês, que pode ou não ser seguido pelo usuário. O planejamento não deve afetar os dados, somente serem exibidos para o usuário;
