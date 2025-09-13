@@ -13,11 +13,11 @@ Registre mensalmente os seguintes dados, que serão inseridos manualmente ou aut
     - Qual foi o gasto anual com tudo.
     - Qual é o gasto mensal com cada categoria.
 
-# Como vai ser o armazenamento desses dados?
-Vou armazenar em um banco de dados, estruturado ou não estruturado?
-- Estruturado: Facilita as buscas e diminui os erros. Categorias Fixas com atributos fixos.
-- Não estruturado: Possibilidade várias formas diferentes. As categorias podem ser definidas posteriormente, sem atributos fixos.
-
-Acho que inicialmente é melhor fazer com o estruturado.
-
-# Como vai ser a estrutura do banco de dados?
+# Stack de Desenvolvimento
+- Linguagem: Kotlin.
+- IDE: Android Studio, ou Nvim.
+- Banco de Dados:
+    - Realm: Banco de dados não estruturado para Android.
+    - DataStore: Para armazenar configurações simples.
+- Backup e Sincronização: Firebase (Auth + Firestore).
+- UI: JetpackCompose.
