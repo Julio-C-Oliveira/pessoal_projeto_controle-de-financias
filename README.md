@@ -22,6 +22,12 @@ Registre mensalmente os seguintes dados, que serão inseridos manualmente ou aut
 - Backup e Sincronização: Firebase (Auth + Firestore).
 - UI: JetpackCompose.
 
+# Arquitetura
+MVVM (Model - View - ViewModel):
+- Model: Responsável pelos dados e lógica de negócio.
+- View: As telas do app, só exibem dados e repassam para o ViewModel.
+- ViewModel: Faz a ligação entre o Model e o View.
+
 # Planejamento
 
 ## 0.1
