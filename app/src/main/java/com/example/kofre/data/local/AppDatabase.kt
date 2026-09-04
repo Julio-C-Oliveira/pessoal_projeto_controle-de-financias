@@ -6,10 +6,12 @@ import androidx.room.TypeConverters
 import com.example.kofre.data.local.dao.CategoryDao
 import com.example.kofre.data.local.dao.InvestmentContributionDao
 import com.example.kofre.data.local.dao.InvestmentDao
+import com.example.kofre.data.local.dao.MonthlyBudgetDao
 import com.example.kofre.data.local.dao.TransactionDao
 import com.example.kofre.data.local.entity.CategoryEntity
 import com.example.kofre.data.local.entity.InvestmentContributionEntity
 import com.example.kofre.data.local.entity.InvestmentEntity
+import com.example.kofre.data.local.entity.MonthlyBudgetEntity
 import com.example.kofre.data.local.entity.TransactionEntity
 
 @Database(
@@ -17,9 +19,10 @@ import com.example.kofre.data.local.entity.TransactionEntity
         CategoryEntity::class,
         TransactionEntity::class,
         InvestmentEntity::class,
-        InvestmentContributionEntity::class
+        InvestmentContributionEntity::class,
+        MonthlyBudgetEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -28,4 +31,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun investmentDao(): InvestmentDao
     abstract fun investmentContributionDao(): InvestmentContributionDao
+    abstract fun monthlyBudgetDao(): MonthlyBudgetDao
 }

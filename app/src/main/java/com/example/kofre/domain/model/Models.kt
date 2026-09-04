@@ -60,3 +60,12 @@ data class InvestmentDetail(
     val currentBalanceInCents: Long,
     val totalAportadoInCents: Long
 )
+
+data class MonthlyBudget(
+    val id: Long = 0,
+    val year: Int,
+    val month: Int,
+    val categoryId: Long,
+    val plannedAmountInCents: Long
+)
+

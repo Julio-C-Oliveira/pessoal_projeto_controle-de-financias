@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 import com.example.kofre.domain.model.InvestmentContribution
+import com.example.kofre.domain.model.MonthlyBudget
 
 class FakeFinanceRepository : FinanceRepository {
 
@@ -16,11 +17,13 @@ class FakeFinanceRepository : FinanceRepository {
     private val transactions = mutableListOf<Transaction>()
     private val investments = mutableListOf<Investment>()
     private val contributions = mutableListOf<InvestmentContribution>()
+    private val budgets = mutableListOf<MonthlyBudget>()
 
     private var nextCategoryId = 1L
     private var nextTransactionId = 1L
     private var nextInvestmentId = 1L
     private var nextContributionId = 1L
+    private var nextBudgetId = 1L
 
     override fun getAllCategories(): Flow<List<Category>> {
         val parents = categories.filter { it.parentId == null }
@@ -49,6 +52,8 @@ class FakeFinanceRepository : FinanceRepository {
 
     override suspend fun deleteCategory(category: Category) {
         categories.removeAll { it.id == category.id }
+        // Cascading delete budgets for this category
+        budgets.removeAll { it.categoryId == category.id }
     }
 
     override fun getAllTransactions(): Flow<List<Transaction>> {
@@ -123,4 +128,42 @@ class FakeFinanceRepository : FinanceRepository {
         contributions.add(newContrib)
         return id
     }
+
+    override fun getBudgetsForMonth(year: Int, month: Int): Flow<List<MonthlyBudget>> {
+        val filtered = budgets.filter { it.year == year && it.month == month }
+        return flowOf(filtered)
+    }
+
+    override fun getBudget(year: Int, month: Int, categoryId: Long): Flow<MonthlyBudget?> {
+        val b = budgets.find { it.year == year && it.month == month && it.categoryId == categoryId }
+        return flowOf(b)
+    }
+
+    override suspend fun insertBudget(budget: MonthlyBudget): Long {
+        val existingIndex = budgets.indexOfFirst {
+            (budget.id > 0L && it.id == budget.id) ||
+            (it.year == budget.year && it.month == budget.month && it.categoryId == budget.categoryId)
+        }
+
+        return if (existingIndex != -1) {
+            val existing = budgets[existingIndex]
+            val updated = budget.copy(id = existing.id)
+            budgets[existingIndex] = updated
+            existing.id
+        } else {
+            val id = if (budget.id == 0L) nextBudgetId++ else budget.id
+            val newBudget = budget.copy(id = id)
+            budgets.add(newBudget)
+            id
+        }
+    }
+
+    override suspend fun insertBudgets(budgetsList: List<MonthlyBudget>): List<Long> {
+        return budgetsList.map { insertBudget(it) }
+    }
+
+    override suspend fun deleteBudget(budgetId: Long) {
+        budgets.removeAll { it.id == budgetId }
+    }
 }
+

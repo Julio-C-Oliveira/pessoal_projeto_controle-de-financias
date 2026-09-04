@@ -35,3 +35,12 @@ class InvalidContributionAmountException(
 class InvestmentNotFoundException(
     investmentId: Long
 ) : Exception("Investimento com ID $investmentId não foi encontrado")
+
+class InvalidBudgetAmountException(
+    message: String = "Valor do orçamento deve ser estritamente maior que zero"
+) : Exception(message)
+
+class BudgetNotFoundException(
+    budgetId: Long
+) : Exception("Orçamento com ID $budgetId não foi encontrado")
+

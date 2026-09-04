@@ -6,9 +6,11 @@ import androidx.test.core.app.ApplicationProvider
 import com.example.kofre.data.local.AppDatabase
 import com.example.kofre.data.local.dao.CategoryDao
 import com.example.kofre.data.local.dao.InvestmentDao
+import com.example.kofre.data.local.dao.MonthlyBudgetDao
 import com.example.kofre.data.local.dao.TransactionDao
 import com.example.kofre.data.local.entity.CategoryEntity
 import com.example.kofre.data.local.entity.InvestmentEntity
+import com.example.kofre.data.local.entity.MonthlyBudgetEntity
 import com.example.kofre.data.local.entity.TransactionEntity
 import com.example.kofre.data.local.enums.CategoryType
 import com.example.kofre.data.local.enums.InvestmentHorizon
@@ -35,6 +37,7 @@ class DatabaseTest {
     private lateinit var categoryDao: CategoryDao
     private lateinit var transactionDao: TransactionDao
     private lateinit var investmentDao: InvestmentDao
+    private lateinit var monthlyBudgetDao: MonthlyBudgetDao
 
     @Before
     fun setUp() {
@@ -47,6 +50,7 @@ class DatabaseTest {
         categoryDao = db.categoryDao()
         transactionDao = db.transactionDao()
         investmentDao = db.investmentDao()
+        monthlyBudgetDao = db.monthlyBudgetDao()
     }
 
     @After
@@ -165,4 +169,45 @@ class DatabaseTest {
         assertEquals(3, groupTransactions.size)
         assertTrue(groupTransactions.all { it.installmentGroupId == groupId })
     }
+
+    // Teste 6: Inserir orçamento e recuperar por mês
+    @Test
+    fun testInsertBudgetAndRetrieveByMonth() = runBlocking {
+        val categoryId = categoryDao.insertCategory(
+            CategoryEntity(name = "Alimentação", type = CategoryType.EXPENSE.name)
+        )
+        val budget = MonthlyBudgetEntity(
+            year = 2026,
+            month = 9,
+            categoryId = categoryId,
+            plannedAmountInCents = 60000L
+        )
+        val budgetId = monthlyBudgetDao.upsertBudget(budget)
+        assertTrue(budgetId > 0)
+
+        val budgets = monthlyBudgetDao.getBudgetsForMonth(2026, 9).first()
+        assertEquals(1, budgets.size)
+        assertEquals(60000L, budgets[0].plannedAmountInCents)
+    }
+
+    // Teste 7: Cascading delete de categoria remove orçamentos vinculados
+    @Test
+    fun testCascadeDeleteCategoryRemovesBudgets() = runBlocking {
+        val categoryId = categoryDao.insertCategory(
+            CategoryEntity(name = "Lazer", type = CategoryType.EXPENSE.name)
+        )
+        val budget = MonthlyBudgetEntity(
+            year = 2026,
+            month = 9,
+            categoryId = categoryId,
+            plannedAmountInCents = 30000L
+        )
+        monthlyBudgetDao.upsertBudget(budget)
+
+        categoryDao.deleteCategory(CategoryEntity(id = categoryId, name = "Lazer", type = CategoryType.EXPENSE.name))
+
+        val budgets = monthlyBudgetDao.getBudgetsForMonth(2026, 9).first()
+        assertTrue(budgets.isEmpty())
+    }
 }
+

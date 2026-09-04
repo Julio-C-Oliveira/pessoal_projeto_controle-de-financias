@@ -3,10 +3,12 @@ package com.example.kofre.data.repository
 import com.example.kofre.data.local.dao.CategoryDao
 import com.example.kofre.data.local.dao.InvestmentContributionDao
 import com.example.kofre.data.local.dao.InvestmentDao
+import com.example.kofre.data.local.dao.MonthlyBudgetDao
 import com.example.kofre.data.local.dao.TransactionDao
 import com.example.kofre.data.local.entity.CategoryEntity
 import com.example.kofre.data.local.entity.InvestmentContributionEntity
 import com.example.kofre.data.local.entity.InvestmentEntity
+import com.example.kofre.data.local.entity.MonthlyBudgetEntity
 import com.example.kofre.data.local.entity.TransactionEntity
 import com.example.kofre.data.local.enums.CategoryType
 import com.example.kofre.data.local.enums.InvestmentHorizon
@@ -16,6 +18,7 @@ import com.example.kofre.data.local.enums.TransactionType
 import com.example.kofre.domain.model.Category
 import com.example.kofre.domain.model.Investment
 import com.example.kofre.domain.model.InvestmentContribution
+import com.example.kofre.domain.model.MonthlyBudget
 import com.example.kofre.domain.model.Transaction
 import com.example.kofre.domain.repository.FinanceRepository
 import kotlinx.coroutines.flow.Flow
@@ -27,7 +30,8 @@ class FinanceRepositoryImpl(
     private val categoryDao: CategoryDao,
     private val transactionDao: TransactionDao,
     private val investmentDao: InvestmentDao,
-    private val investmentContributionDao: InvestmentContributionDao? = null
+    private val investmentContributionDao: InvestmentContributionDao? = null,
+    private val monthlyBudgetDao: MonthlyBudgetDao? = null
 ) : FinanceRepository {
 
     override fun getAllCategories(): Flow<List<Category>> {
@@ -132,6 +136,30 @@ class FinanceRepositoryImpl(
         return investmentContributionDao?.insertContribution(contribution.toEntity()) ?: 0L
     }
 
+    override fun getBudgetsForMonth(year: Int, month: Int): Flow<List<MonthlyBudget>> {
+        return monthlyBudgetDao?.getBudgetsForMonth(year, month)?.map { entities ->
+            entities.map { it.toDomain() }
+        } ?: flowOf(emptyList())
+    }
+
+    override fun getBudget(year: Int, month: Int, categoryId: Long): Flow<MonthlyBudget?> {
+        return monthlyBudgetDao?.getBudget(year, month, categoryId)?.map { entity ->
+            entity?.toDomain()
+        } ?: flowOf(null)
+    }
+
+    override suspend fun insertBudget(budget: MonthlyBudget): Long {
+        return monthlyBudgetDao?.upsertBudget(budget.toEntity()) ?: 0L
+    }
+
+    override suspend fun insertBudgets(budgets: List<MonthlyBudget>): List<Long> {
+        return monthlyBudgetDao?.upsertBudgets(budgets.map { it.toEntity() }) ?: emptyList()
+    }
+
+    override suspend fun deleteBudget(budgetId: Long) {
+        monthlyBudgetDao?.deleteBudgetById(budgetId)
+    }
+
     // --- Helpers ---
 
     private fun mapCategoryTree(entities: List<CategoryEntity>): List<Category> {
@@ -233,4 +261,25 @@ class FinanceRepositoryImpl(
             notes = notes
         )
     }
+
+    private fun MonthlyBudgetEntity.toDomain(): MonthlyBudget {
+        return MonthlyBudget(
+            id = id,
+            year = year,
+            month = month,
+            categoryId = categoryId,
+            plannedAmountInCents = plannedAmountInCents
+        )
+    }
+
+    private fun MonthlyBudget.toEntity(): MonthlyBudgetEntity {
+        return MonthlyBudgetEntity(
+            id = id,
+            year = year,
+            month = month,
+            categoryId = categoryId,
+            plannedAmountInCents = plannedAmountInCents
+        )
+    }
 }
+
