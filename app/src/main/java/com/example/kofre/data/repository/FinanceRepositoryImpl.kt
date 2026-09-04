@@ -1,9 +1,11 @@
 package com.example.kofre.data.repository
 
 import com.example.kofre.data.local.dao.CategoryDao
+import com.example.kofre.data.local.dao.InvestmentContributionDao
 import com.example.kofre.data.local.dao.InvestmentDao
 import com.example.kofre.data.local.dao.TransactionDao
 import com.example.kofre.data.local.entity.CategoryEntity
+import com.example.kofre.data.local.entity.InvestmentContributionEntity
 import com.example.kofre.data.local.entity.InvestmentEntity
 import com.example.kofre.data.local.entity.TransactionEntity
 import com.example.kofre.data.local.enums.CategoryType
@@ -13,16 +15,19 @@ import com.example.kofre.data.local.enums.PaymentMethod
 import com.example.kofre.data.local.enums.TransactionType
 import com.example.kofre.domain.model.Category
 import com.example.kofre.domain.model.Investment
+import com.example.kofre.domain.model.InvestmentContribution
 import com.example.kofre.domain.model.Transaction
 import com.example.kofre.domain.repository.FinanceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 class FinanceRepositoryImpl(
     private val categoryDao: CategoryDao,
     private val transactionDao: TransactionDao,
-    private val investmentDao: InvestmentDao
+    private val investmentDao: InvestmentDao,
+    private val investmentContributionDao: InvestmentContributionDao? = null
 ) : FinanceRepository {
 
     override fun getAllCategories(): Flow<List<Category>> {
@@ -49,7 +54,7 @@ class FinanceRepositoryImpl(
         return combine(
             transactionDao.getAllTransactions(),
             categoryDao.getAllCategories()
-        ) { transactions, categories ->
+        ) { transactions: List<TransactionEntity>, categories: List<CategoryEntity> ->
             val categoryMap = categories.associateBy { it.id }
             transactions.map { it.toDomain(categoryMap[it.categoryId]?.toDomainFlat()) }
         }
@@ -59,7 +64,7 @@ class FinanceRepositoryImpl(
         return combine(
             transactionDao.getTransactionsByDateRange(startDate, endDate),
             categoryDao.getAllCategories()
-        ) { transactions, categories ->
+        ) { transactions: List<TransactionEntity>, categories: List<CategoryEntity> ->
             val categoryMap = categories.associateBy { it.id }
             transactions.map { it.toDomain(categoryMap[it.categoryId]?.toDomainFlat()) }
         }
@@ -69,7 +74,7 @@ class FinanceRepositoryImpl(
         return combine(
             transactionDao.getTransactionsByGroupId(groupId),
             categoryDao.getAllCategories()
-        ) { transactions, categories ->
+        ) { transactions: List<TransactionEntity>, categories: List<CategoryEntity> ->
             val categoryMap = categories.associateBy { it.id }
             transactions.map { it.toDomain(categoryMap[it.categoryId]?.toDomainFlat()) }
         }
@@ -97,12 +102,34 @@ class FinanceRepositoryImpl(
         }
     }
 
+    override fun getInvestmentById(id: Long): Flow<Investment?> {
+        return investmentDao.getAllInvestments().map { entities ->
+            entities.find { it.id == id }?.toDomain()
+        }
+    }
+
     override suspend fun insertInvestment(investment: Investment): Long {
         return investmentDao.insertInvestment(investment.toEntity())
     }
 
     override suspend fun updateInvestmentBalance(id: Long, newBalanceInCents: Long) {
         investmentDao.updateBalance(id, newBalanceInCents)
+    }
+
+    override fun getAllContributions(): Flow<List<InvestmentContribution>> {
+        return investmentContributionDao?.getAllContributions()?.map { entities ->
+            entities.map { it.toDomain() }
+        } ?: flowOf(emptyList())
+    }
+
+    override fun getContributionsByInvestmentId(investmentId: Long): Flow<List<InvestmentContribution>> {
+        return investmentContributionDao?.getContributionsByInvestmentId(investmentId)?.map { entities ->
+            entities.map { it.toDomain() }
+        } ?: flowOf(emptyList())
+    }
+
+    override suspend fun insertContribution(contribution: InvestmentContribution): Long {
+        return investmentContributionDao?.insertContribution(contribution.toEntity()) ?: 0L
     }
 
     // --- Helpers ---
@@ -184,6 +211,26 @@ class FinanceRepositoryImpl(
             type = type.name,
             horizon = horizon.name,
             currentBalanceInCents = currentBalanceInCents
+        )
+    }
+
+    private fun InvestmentContributionEntity.toDomain(): InvestmentContribution {
+        return InvestmentContribution(
+            id = id,
+            investmentId = investmentId,
+            amountInCents = amountInCents,
+            timestamp = timestamp,
+            notes = notes
+        )
+    }
+
+    private fun InvestmentContribution.toEntity(): InvestmentContributionEntity {
+        return InvestmentContributionEntity(
+            id = id,
+            investmentId = investmentId,
+            amountInCents = amountInCents,
+            timestamp = timestamp,
+            notes = notes
         )
     }
 }

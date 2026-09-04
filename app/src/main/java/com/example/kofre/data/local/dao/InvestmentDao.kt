@@ -15,6 +15,9 @@ interface InvestmentDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertInvestment(investment: InvestmentEntity): Long
 
+    @Query("SELECT * FROM investments WHERE id = :id")
+    suspend fun getInvestmentById(id: Long): InvestmentEntity?
+
     @Query("UPDATE investments SET currentBalanceInCents = :newBalanceInCents WHERE id = :id")
     suspend fun updateBalance(id: Long, newBalanceInCents: Long)
 }

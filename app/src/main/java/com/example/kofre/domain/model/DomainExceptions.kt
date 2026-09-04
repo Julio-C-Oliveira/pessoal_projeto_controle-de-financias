@@ -19,3 +19,19 @@ class InvalidPaymentMethodException(
 class TransactionNotFoundException(
     message: String = "Transação não encontrada"
 ) : Exception(message)
+
+class InvalidInvestmentNameException(
+    message: String = "Nome do investimento não pode ser vazio ou conter apenas espaços em branco"
+) : Exception(message)
+
+class InvalidInvestmentBalanceException(
+    message: String = "Saldo do investimento não pode ser negativo"
+) : Exception(message)
+
+class InvalidContributionAmountException(
+    message: String = "Valor do aporte deve ser estritamente maior que zero"
+) : Exception(message)
+
+class InvestmentNotFoundException(
+    investmentId: Long
+) : Exception("Investimento com ID $investmentId não foi encontrado")

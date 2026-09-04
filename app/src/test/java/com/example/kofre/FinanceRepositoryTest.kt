@@ -40,7 +40,8 @@ class FinanceRepositoryTest {
         repository = FinanceRepositoryImpl(
             db.categoryDao(),
             db.transactionDao(),
-            db.investmentDao()
+            db.investmentDao(),
+            db.investmentContributionDao()
         )
     }
 

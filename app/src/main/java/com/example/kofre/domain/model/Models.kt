@@ -36,3 +36,27 @@ data class Investment(
     val horizon: InvestmentHorizon,
     val currentBalanceInCents: Long = 0L
 )
+
+data class InvestmentContribution(
+    val id: Long = 0,
+    val investmentId: Long,
+    val amountInCents: Long,
+    val timestamp: Long,
+    val notes: String? = null
+)
+
+data class InvestmentSummary(
+    val totalInvestedInCents: Long,
+    val totalContributionsInCents: Long,
+    val totalYieldInCents: Long,
+    val investments: List<InvestmentDetail>
+)
+
+data class InvestmentDetail(
+    val id: Long,
+    val name: String,
+    val type: InvestmentType,
+    val horizon: InvestmentHorizon,
+    val currentBalanceInCents: Long,
+    val totalAportadoInCents: Long
+)

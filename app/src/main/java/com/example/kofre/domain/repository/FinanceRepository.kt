@@ -6,6 +6,8 @@ import com.example.kofre.domain.model.Investment
 import com.example.kofre.domain.model.Transaction
 import kotlinx.coroutines.flow.Flow
 
+import com.example.kofre.domain.model.InvestmentContribution
+
 interface FinanceRepository {
     fun getAllCategories(): Flow<List<Category>>
     fun getCategoriesByType(type: CategoryType): Flow<List<Category>>
@@ -21,6 +23,11 @@ interface FinanceRepository {
     suspend fun deleteTransactionsByGroupId(groupId: String)
 
     fun getAllInvestments(): Flow<List<Investment>>
+    fun getInvestmentById(id: Long): Flow<Investment?>
     suspend fun insertInvestment(investment: Investment): Long
     suspend fun updateInvestmentBalance(id: Long, newBalanceInCents: Long)
+
+    fun getAllContributions(): Flow<List<InvestmentContribution>>
+    fun getContributionsByInvestmentId(investmentId: Long): Flow<List<InvestmentContribution>>
+    suspend fun insertContribution(contribution: InvestmentContribution): Long
 }

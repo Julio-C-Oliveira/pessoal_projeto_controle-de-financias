@@ -8,15 +8,19 @@ import com.example.kofre.domain.repository.FinanceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
+import com.example.kofre.domain.model.InvestmentContribution
+
 class FakeFinanceRepository : FinanceRepository {
 
     private val categories = mutableListOf<Category>()
     private val transactions = mutableListOf<Transaction>()
     private val investments = mutableListOf<Investment>()
+    private val contributions = mutableListOf<InvestmentContribution>()
 
     private var nextCategoryId = 1L
     private var nextTransactionId = 1L
     private var nextInvestmentId = 1L
+    private var nextContributionId = 1L
 
     override fun getAllCategories(): Flow<List<Category>> {
         val parents = categories.filter { it.parentId == null }
@@ -84,6 +88,11 @@ class FakeFinanceRepository : FinanceRepository {
         return flowOf(investments.toList())
     }
 
+    override fun getInvestmentById(id: Long): Flow<Investment?> {
+        val inv = investments.find { it.id == id }
+        return flowOf(inv)
+    }
+
     override suspend fun insertInvestment(investment: Investment): Long {
         val id = if (investment.id == 0L) nextInvestmentId++ else investment.id
         val newInv = investment.copy(id = id)
@@ -96,5 +105,22 @@ class FakeFinanceRepository : FinanceRepository {
         if (index != -1) {
             investments[index] = investments[index].copy(currentBalanceInCents = newBalanceInCents)
         }
+    }
+
+    override fun getAllContributions(): Flow<List<InvestmentContribution>> {
+        return flowOf(contributions.sortedByDescending { it.timestamp })
+    }
+
+    override fun getContributionsByInvestmentId(investmentId: Long): Flow<List<InvestmentContribution>> {
+        val filtered = contributions.filter { it.investmentId == investmentId }
+            .sortedByDescending { it.timestamp }
+        return flowOf(filtered)
+    }
+
+    override suspend fun insertContribution(contribution: InvestmentContribution): Long {
+        val id = if (contribution.id == 0L) nextContributionId++ else contribution.id
+        val newContrib = contribution.copy(id = id)
+        contributions.add(newContrib)
+        return id
     }
 }
