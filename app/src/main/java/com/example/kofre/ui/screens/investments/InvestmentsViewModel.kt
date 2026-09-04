@@ -10,6 +10,7 @@ import com.example.kofre.domain.usecase.investment.AddContributionParams
 import com.example.kofre.domain.usecase.investment.AddContributionUseCase
 import com.example.kofre.domain.usecase.investment.CreateInvestmentParams
 import com.example.kofre.domain.usecase.investment.CreateInvestmentUseCase
+import com.example.kofre.domain.usecase.investment.DeleteInvestmentUseCase
 import com.example.kofre.domain.usecase.investment.GetInvestmentsSummaryUseCase
 import com.example.kofre.domain.usecase.investment.UpdateInvestmentBalanceUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +30,8 @@ class InvestmentsViewModel(
     private val getInvestmentsSummaryUseCase: GetInvestmentsSummaryUseCase,
     private val createInvestmentUseCase: CreateInvestmentUseCase,
     private val addContributionUseCase: AddContributionUseCase,
-    private val updateInvestmentBalanceUseCase: UpdateInvestmentBalanceUseCase
+    private val updateInvestmentBalanceUseCase: UpdateInvestmentBalanceUseCase,
+    private val deleteInvestmentUseCase: DeleteInvestmentUseCase
 ) : ViewModel() {
 
     private val _errorMessage = MutableStateFlow<String?>(null)
@@ -102,6 +104,17 @@ class InvestmentsViewModel(
             true
         } else {
             _errorMessage.value = result.exceptionOrNull()?.message ?: "Erro ao atualizar saldo."
+            false
+        }
+    }
+
+    suspend fun deleteInvestment(investmentId: Long): Boolean {
+        _errorMessage.value = null
+        val result = deleteInvestmentUseCase(investmentId)
+        return if (result.isSuccess) {
+            true
+        } else {
+            _errorMessage.value = result.exceptionOrNull()?.message ?: "Erro ao excluir investimento."
             false
         }
     }

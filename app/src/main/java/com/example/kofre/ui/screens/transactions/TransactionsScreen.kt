@@ -29,6 +29,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -332,7 +333,7 @@ fun AddTransactionDialog(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategoryMenu) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     )
                     ExposedDropdownMenu(
                         expanded = expandedCategoryMenu,
@@ -352,14 +353,46 @@ fun AddTransactionDialog(
 
                 // Payment Method
                 Text("Forma de Pagamento:", style = MaterialTheme.typography.bodyMedium)
-                Row {
-                    PaymentMethod.values().forEach { method ->
-                        RadioButton(
-                            selected = selectedMethod == method,
-                            onClick = { selectedMethod = method }
-                        )
-                        Text(method.name, modifier = Modifier.padding(top = 12.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
+                val paymentMethodLabels = mapOf(
+                    PaymentMethod.CASH to "Dinheiro",
+                    PaymentMethod.DEBIT to "Débito",
+                    PaymentMethod.CREDIT_CARD to "Cartão de Crédito",
+                    PaymentMethod.PIX to "Pix"
+                )
+                Column {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        listOf(PaymentMethod.CASH, PaymentMethod.DEBIT).forEach { method ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                RadioButton(
+                                    selected = selectedMethod == method,
+                                    onClick = { selectedMethod = method }
+                                )
+                                Text(
+                                    text = paymentMethodLabels[method] ?: method.name,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        listOf(PaymentMethod.CREDIT_CARD, PaymentMethod.PIX).forEach { method ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                RadioButton(
+                                    selected = selectedMethod == method,
+                                    onClick = { selectedMethod = method }
+                                )
+                                Text(
+                                    text = paymentMethodLabels[method] ?: method.name,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
                     }
                 }
 

@@ -29,6 +29,7 @@ interface FinanceRepository {
     fun getInvestmentById(id: Long): Flow<Investment?>
     suspend fun insertInvestment(investment: Investment): Long
     suspend fun updateInvestmentBalance(id: Long, newBalanceInCents: Long)
+    suspend fun deleteInvestment(id: Long)
 
     fun getAllContributions(): Flow<List<InvestmentContribution>>
     fun getContributionsByInvestmentId(investmentId: Long): Flow<List<InvestmentContribution>>

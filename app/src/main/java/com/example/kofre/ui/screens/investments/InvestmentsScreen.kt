@@ -15,16 +15,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -62,6 +65,7 @@ fun InvestmentsScreen(
     var showAddAssetDialog by remember { mutableStateOf(false) }
     var selectedAssetForContribution by remember { mutableStateOf<InvestmentDetail?>(null) }
     var selectedAssetForBalanceUpdate by remember { mutableStateOf<InvestmentDetail?>(null) }
+    var assetToDelete by remember { mutableStateOf<InvestmentDetail?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -169,7 +173,8 @@ fun InvestmentsScreen(
                     InvestmentAssetCard(
                         asset = asset,
                         onAddContribution = { selectedAssetForContribution = asset },
-                        onUpdateBalance = { selectedAssetForBalanceUpdate = asset }
+                        onUpdateBalance = { selectedAssetForBalanceUpdate = asset },
+                        onDeleteClick = { assetToDelete = asset }
                     )
                 }
             }
@@ -214,13 +219,27 @@ fun InvestmentsScreen(
             }
         )
     }
+
+    assetToDelete?.let { asset ->
+        DeleteInvestmentDialog(
+            assetName = asset.name,
+            onDismiss = { assetToDelete = null },
+            onConfirm = {
+                coroutineScope.launch {
+                    viewModel.deleteInvestment(asset.id)
+                    assetToDelete = null
+                }
+            }
+        )
+    }
 }
 
 @Composable
 fun InvestmentAssetCard(
     asset: InvestmentDetail,
     onAddContribution: () -> Unit,
-    onUpdateBalance: () -> Unit
+    onUpdateBalance: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
     val yieldInCents = asset.currentBalanceInCents - asset.totalAportadoInCents
 
@@ -253,6 +272,9 @@ fun InvestmentAssetCard(
                     }
                     IconButton(onClick = onUpdateBalance) {
                         Icon(Icons.Default.Edit, contentDescription = "Atualizar Saldo", tint = MaterialTheme.colorScheme.secondary)
+                    }
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(Icons.Default.Delete, contentDescription = "Excluir Ativo", tint = MaterialTheme.colorScheme.error)
                     }
                 }
             }
@@ -327,7 +349,7 @@ fun AddInvestmentDialog(
                         readOnly = true,
                         label = { Text("Tipo de Investimento") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedType) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     )
                     ExposedDropdownMenu(
                         expanded = expandedType,
@@ -356,7 +378,7 @@ fun AddInvestmentDialog(
                         readOnly = true,
                         label = { Text("Horizonte") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHorizon) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     )
                     ExposedDropdownMenu(
                         expanded = expandedHorizon,
@@ -486,6 +508,28 @@ fun UpdateBalanceDialog(
             TextButton(onClick = onDismiss) {
                 Text("Cancelar")
             }
+        }
+    )
+}
+
+@Composable
+fun DeleteInvestmentDialog(
+    assetName: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Excluir Ativo") },
+        text = { Text("Deseja realmente excluir o ativo \"$assetName\"? Esta ação também removerá todos os aportes associados.") },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) { Text("Excluir") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancelar") }
         }
     )
 }

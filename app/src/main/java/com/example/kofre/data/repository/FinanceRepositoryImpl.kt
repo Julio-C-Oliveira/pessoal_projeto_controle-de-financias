@@ -127,6 +127,10 @@ class FinanceRepositoryImpl(
         investmentDao.updateBalance(id, newBalanceInCents)
     }
 
+    override suspend fun deleteInvestment(id: Long) {
+        investmentDao.deleteById(id)
+    }
+
     override fun getAllContributions(): Flow<List<InvestmentContribution>> {
         return investmentContributionDao?.getAllContributions()?.map { entities ->
             entities.map { it.toDomain() }

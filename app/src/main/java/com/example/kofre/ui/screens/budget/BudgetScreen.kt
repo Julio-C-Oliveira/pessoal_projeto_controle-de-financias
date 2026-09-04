@@ -22,6 +22,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -253,6 +254,13 @@ fun SetBudgetDialog(
         title = { Text("Definir Teto de Categoria") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (categories.isEmpty()) {
+                    Text(
+                        text = "Nenhuma categoria de despesa disponível.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = { expanded = !expanded }
@@ -264,7 +272,7 @@ fun SetBudgetDialog(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     )
                     ExposedDropdownMenu(
                         expanded = expanded,
@@ -281,6 +289,7 @@ fun SetBudgetDialog(
                         }
                     }
                 }
+                } // end else
 
                 OutlinedTextField(
                     value = amountText,
