@@ -44,7 +44,7 @@ spec-01 a spec-05
 
 | Spec | Descrição | Status |
 |---|---|---|
-| [spec-01](spec-01-database.md) | Banco de dados, entidades e DAOs | `[ ]` não iniciada |
+| [spec-01](spec-01-database.md) | Banco de dados, entidades e DAOs | `[x]` concluída |
 | [spec-02](spec-02-transactions.md) | Transações e parcelamentos | `[ ]` não iniciada |
 | [spec-03](spec-03-investments.md) | Investimentos e aportes | `[ ]` não iniciada |
 | [spec-04](spec-04-budgeting.md) | Orçamento mensal | `[ ]` não iniciada |

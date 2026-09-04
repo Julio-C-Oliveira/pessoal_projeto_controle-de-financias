@@ -1,5 +1,12 @@
 #!/bin/sh
 
+if [ -d "/usr/lib/jvm/java-21-openjdk" ]; then
+    export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
+    export PATH="$JAVA_HOME/bin:$PATH"
+fi
+
+
+
 #
 # Copyright © 2015 the original authors.
 #
