@@ -48,7 +48,7 @@ spec-01 a spec-05
 | [spec-02](spec-02-transactions.md) | Transações e parcelamentos | `[x]` concluída |
 | [spec-03](spec-03-investments.md) | Investimentos e aportes | `[x]` concluída |
 | [spec-04](spec-04-budgeting.md) | Orçamento mensal | `[x]` concluída |
-| [spec-05](spec-05-ui-reports.md) | Relatórios e UI Compose | `[ ]` não iniciada |
+| [spec-05](spec-05-ui-reports.md) | Relatórios e UI Compose | `[x]` concluída |
 | [spec-06](spec-06-backup.md) | Backup e restauração local | `[ ]` não iniciada |
 
 > Atualize este campo para `[/]` ao iniciar e `[x]` ao concluir (todos os testes verdes).
