@@ -4,6 +4,7 @@ import com.example.kofre.data.local.entity.CategoryEntity
 import com.example.kofre.data.local.entity.InvestmentContributionEntity
 import com.example.kofre.data.local.entity.InvestmentEntity
 import com.example.kofre.data.local.entity.MonthlyBudgetEntity
+import com.example.kofre.data.local.entity.RecurringTransactionEntity
 import com.example.kofre.data.local.entity.TransactionEntity
 
 fun CategoryEntity.toBackupDto(): CategoryBackupDto = CategoryBackupDto(
@@ -31,6 +32,7 @@ fun TransactionEntity.toBackupDto(): TransactionBackupDto = TransactionBackupDto
     installmentGroupId = installmentGroupId,
     installmentsCount = installmentsCount,
     currentInstallment = currentInstallment,
+    recurringTransactionId = recurringTransactionId,
     notes = notes
 )
 
@@ -45,6 +47,41 @@ fun TransactionBackupDto.toEntity(): TransactionEntity = TransactionEntity(
     installmentGroupId = installmentGroupId,
     installmentsCount = installmentsCount,
     currentInstallment = currentInstallment,
+    recurringTransactionId = recurringTransactionId,
+    notes = notes
+)
+
+fun RecurringTransactionEntity.toBackupDto(): RecurringTransactionBackupDto = RecurringTransactionBackupDto(
+    id = id,
+    amountInCents = amountInCents,
+    categoryId = categoryId,
+    type = type,
+    paymentMethod = paymentMethod,
+    frequency = frequency,
+    startDate = startDate,
+    endDate = endDate,
+    totalOccurrences = totalOccurrences,
+    generatedCount = generatedCount,
+    lastGeneratedDate = lastGeneratedDate,
+    isActive = isActive,
+    isEssential = isEssential,
+    notes = notes
+)
+
+fun RecurringTransactionBackupDto.toEntity(): RecurringTransactionEntity = RecurringTransactionEntity(
+    id = id,
+    amountInCents = amountInCents,
+    categoryId = categoryId,
+    type = type,
+    paymentMethod = paymentMethod,
+    frequency = frequency,
+    startDate = startDate,
+    endDate = endDate,
+    totalOccurrences = totalOccurrences,
+    generatedCount = generatedCount,
+    lastGeneratedDate = lastGeneratedDate,
+    isActive = isActive,
+    isEssential = isEssential,
     notes = notes
 )
 

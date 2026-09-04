@@ -15,7 +15,7 @@ class ImportBackupUseCaseImpl(
 ) : ImportBackupUseCase {
 
     companion object {
-        const val CURRENT_SUPPORTED_VERSION = 1
+        const val CURRENT_SUPPORTED_VERSION = 2
     }
 
     override suspend fun invoke(inputStream: InputStream): Result<Unit> {

@@ -5,6 +5,7 @@ import com.example.kofre.data.local.backup.CategoryBackupDto
 import com.example.kofre.data.local.backup.InvestmentBackupDto
 import com.example.kofre.data.local.backup.InvestmentContributionBackupDto
 import com.example.kofre.data.local.backup.MonthlyBudgetBackupDto
+import com.example.kofre.data.local.backup.RecurringTransactionBackupDto
 import com.example.kofre.data.local.backup.TransactionBackupDto
 import com.example.kofre.data.local.entity.RecurringTransactionEntity
 import com.example.kofre.data.local.enums.CategoryType
@@ -244,27 +245,48 @@ class FakeFinanceRepository : FinanceRepository {
                 installmentGroupId = it.installmentGroupId,
                 installmentsCount = it.installmentsCount,
                 currentInstallment = it.currentInstallment,
+                recurringTransactionId = it.recurringTransactionId,
                 notes = it.notes
             )
         }
         val invDtos = investments.map { InvestmentBackupDto(it.id, it.name, it.type.name, it.horizon.name, it.currentBalanceInCents) }
         val contribDtos = contributions.map { InvestmentContributionBackupDto(it.id, it.investmentId, it.amountInCents, it.timestamp, it.notes) }
         val budgetDtos = budgets.map { MonthlyBudgetBackupDto(it.id, it.year, it.month, it.categoryId, it.plannedAmountInCents) }
+        val recurringDtos = recurringTransactions.map {
+            RecurringTransactionBackupDto(
+                id = it.id,
+                amountInCents = it.amountInCents,
+                categoryId = it.categoryId,
+                type = it.type,
+                paymentMethod = it.paymentMethod,
+                frequency = it.frequency,
+                startDate = it.startDate,
+                endDate = it.endDate,
+                totalOccurrences = it.totalOccurrences,
+                generatedCount = it.generatedCount,
+                lastGeneratedDate = it.lastGeneratedDate,
+                isActive = it.isActive,
+                isEssential = it.isEssential,
+                notes = it.notes
+            )
+        }
 
         return BackupPayloadDto(
-            version = 1,
+            version = 2,
             exportedAt = System.currentTimeMillis(),
             categories = catDtos,
             transactions = txDtos,
             investments = invDtos,
             investmentContributions = contribDtos,
-            monthlyBudgets = budgetDtos
+            monthlyBudgets = budgetDtos,
+            recurringTransactions = recurringDtos
         )
     }
 
     override suspend fun importBackup(payload: BackupPayloadDto) {
         categories.clear()
         transactions.clear()
+        recurringTransactions.clear()
         investments.clear()
         contributions.clear()
         budgets.clear()
@@ -274,6 +296,26 @@ class FakeFinanceRepository : FinanceRepository {
         }
         payload.investments.forEach { dto ->
             investments.add(Investment(dto.id, dto.name, InvestmentType.valueOf(dto.type), InvestmentHorizon.valueOf(dto.horizon), dto.currentBalanceInCents))
+        }
+        payload.recurringTransactions.forEach { dto ->
+            recurringTransactions.add(
+                RecurringTransactionEntity(
+                    id = dto.id,
+                    amountInCents = dto.amountInCents,
+                    categoryId = dto.categoryId,
+                    type = dto.type,
+                    paymentMethod = dto.paymentMethod,
+                    frequency = dto.frequency,
+                    startDate = dto.startDate,
+                    endDate = dto.endDate,
+                    totalOccurrences = dto.totalOccurrences,
+                    generatedCount = dto.generatedCount,
+                    lastGeneratedDate = dto.lastGeneratedDate,
+                    isActive = dto.isActive,
+                    isEssential = dto.isEssential,
+                    notes = dto.notes
+                )
+            )
         }
         payload.transactions.forEach { dto ->
             val cat = categories.find { c -> c.id == dto.categoryId }
@@ -290,6 +332,7 @@ class FakeFinanceRepository : FinanceRepository {
                     installmentGroupId = dto.installmentGroupId,
                     installmentsCount = dto.installmentsCount,
                     currentInstallment = dto.currentInstallment,
+                    recurringTransactionId = dto.recurringTransactionId,
                     notes = dto.notes
                 )
             )

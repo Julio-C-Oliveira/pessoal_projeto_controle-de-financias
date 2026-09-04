@@ -27,6 +27,9 @@ spec-05 + spec-06
               │
 spec-02 + spec-07
     └─► spec-08 (Receitas e Despesas Recorrentes)
+              │
+spec-06 + spec-08
+    └─► spec-09 (Atualização do Backup Payload v2)
 ```
 
 > **Regra:** nunca inicie a implementação de uma spec sem que todas as suas dependências estejam com os Critérios de Aceite passando (testes verdes).
@@ -45,6 +48,7 @@ spec-02 + spec-07
 | 6 | [task-06](../tasks/task-06.md) | [spec-06](spec-06-backup.md) | task-01 a task-05 |
 | 7 | [task-07](../tasks/task-07.md) | [spec-07](spec-07-ux-bugfix.md) | task-05, task-06 |
 | 8 | [task-08](../tasks/task-08.md) | [spec-08](spec-08-recurring-transactions.md) | task-02, task-07 |
+| 9 | [task-09](../tasks/task-09.md) | [spec-09](spec-09-backup-update.md) | task-06, task-08 |
 
 ---
 
@@ -60,6 +64,7 @@ spec-02 + spec-07
 | [spec-06](spec-06-backup.md) | Backup e restauração local | `[x]` concluída |
 | [spec-07](spec-07-ux-bugfix.md) | Correção de bugs de usabilidade | `[x]` concluída |
 | [spec-08](spec-08-recurring-transactions.md) | Receitas e despesas recorrentes | `[x]` concluída |
+| [spec-09](spec-09-backup-update.md) | Atualização do backup e restauração local (Payload v2) | `[x]` concluída |
 
 > Atualize este campo para `[/]` ao iniciar e `[x]` ao concluir (todos os testes verdes).
 

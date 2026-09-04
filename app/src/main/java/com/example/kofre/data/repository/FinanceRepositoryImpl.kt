@@ -353,15 +353,17 @@ class FinanceRepositoryImpl(
         val investments = investmentDao.getAllInvestments().first().map { it.toBackupDto() }
         val contributions = investmentContributionDao?.getAllContributions()?.first()?.map { it.toBackupDto() } ?: emptyList()
         val budgets = monthlyBudgetDao?.getAllBudgets()?.first()?.map { it.toBackupDto() } ?: emptyList()
+        val recurring = recurringTransactionDao?.getAllRecurringTransactions()?.first()?.map { it.toBackupDto() } ?: emptyList()
 
         return BackupPayloadDto(
-            version = 1,
+            version = 2,
             exportedAt = System.currentTimeMillis(),
             categories = categories,
             transactions = transactions,
             investments = investments,
             investmentContributions = contributions,
-            monthlyBudgets = budgets
+            monthlyBudgets = budgets,
+            recurringTransactions = recurring
         )
     }
 
@@ -371,6 +373,7 @@ class FinanceRepositoryImpl(
             monthlyBudgetDao?.deleteAllBudgets()
             investmentContributionDao?.deleteAllContributions()
             transactionDao.deleteAllTransactions()
+            recurringTransactionDao?.deleteAllRecurringTransactions()
             investmentDao.deleteAllInvestments()
             categoryDao.deleteSubcategories()
             categoryDao.deleteAllCategories()
@@ -382,6 +385,9 @@ class FinanceRepositoryImpl(
 
             val investments = payload.investments.map { it.toEntity() }
             if (investments.isNotEmpty()) investmentDao.insertInvestments(investments)
+
+            val recurring = payload.recurringTransactions.map { it.toEntity() }
+            if (recurring.isNotEmpty()) recurringTransactionDao?.insertAll(recurring)
 
             val transactions = payload.transactions.map { it.toEntity() }
             if (transactions.isNotEmpty()) transactionDao.insertTransactions(transactions)
