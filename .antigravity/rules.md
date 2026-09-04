@@ -21,3 +21,9 @@
 - Antes de editar arquivos, liste rapidamente o plano em 2-3 tópicos objetivos.
 - Não altere arquivos fora do escopo explícito da tarefa solicitada.
 - Ao finalizar modificações estruturais, sugira o comando Gradle relevante para validação (ex: `./gradlew test`).
+
+## 5. Dependências Autorizadas
+As bibliotecas abaixo são pré-aprovadas e podem ser adicionadas sem autorização adicional no prompt:
+- `org.jetbrains.kotlinx:kotlinx-serialization-json` — **exclusivamente** para o módulo de Backup (Spec 06 / Task 06). Não deve ser usada para outra finalidade.
+
+Qualquer outra dependência fora do ecossistema AndroidX/Jetpack continua exigindo autorização explícita no prompt antes de ser adicionada.

@@ -8,6 +8,7 @@ Esta especificação define a persistência local com Room para o aplicativo de 
 - `CategoryType`: `INCOME`, `EXPENSE`, `INVESTMENT`
 - `PaymentMethod`: `CASH`, `DEBIT`, `CREDIT_CARD`, `PIX`
 - `InvestmentType`: `FIXED_INCOME`, `VARIABLE`
+- `InvestmentHorizon`: `SHORT`, `MEDIUM`, `LONG` — mapeado via `TypeConverter` para `String` no banco.
 
 ## 3. Esquema das Entidades
 
@@ -25,6 +26,7 @@ Esta especificação define a persistência local com Room para o aplicativo de 
 - `type`: String (Mapeado de `TransactionType`)
 - `paymentMethod`: String (Mapeado de `PaymentMethod`)
 - `isEssential`: Boolean (Default false)
+- `installmentGroupId`: String? (UUID v4 gerado no momento da criação; `null` quando `installmentsCount == 1`)
 - `installmentsCount`: Int (Default 1, deve ser >= 1)
 - `currentInstallment`: Int (Default 1, deve ser >= 1)
 - `notes`: String? (Opcional)
@@ -33,7 +35,7 @@ Esta especificação define a persistência local com Room para o aplicativo de 
 - `id`: Long (PK, autoGenerate = true)
 - `name`: String (Not Null)
 - `type`: String (Mapeado de `InvestmentType`)
-- `horizon`: String (Not Null, valores permitidos: "CURTO", "MEDIO", "LONGO")
+- `horizon`: String (Mapeado de `InvestmentHorizon` via TypeConverter, valores: `"SHORT"`, `"MEDIUM"`, `"LONG"`)
 - `currentBalanceInCents`: Long (Default 0, deve ser >= 0)
 
 ## 4. Contratos de DAO
@@ -47,9 +49,11 @@ Esta especificação define a persistência local com Room para o aplicativo de 
 ### TransactionDao
 - `fun getAllTransactions(): Flow<List<TransactionEntity>>`
 - `fun getTransactionsByDateRange(startDate: Long, endDate: Long): Flow<List<TransactionEntity>>`
+- `fun getTransactionsByGroupId(groupId: String): Flow<List<TransactionEntity>>`
 - `suspend fun insertTransaction(transaction: TransactionEntity): Long`
 - `suspend fun insertTransactions(transactions: List<TransactionEntity>): List<Long>`
 - `suspend fun deleteTransaction(transaction: TransactionEntity)`
+- `suspend fun deleteTransactionsByGroupId(groupId: String)`
 
 ### InvestmentDao
 - `fun getAllInvestments(): Flow<List<InvestmentEntity>>`
@@ -68,3 +72,4 @@ Deve expor modelos de domínio imutáveis (sem anotações do Room):
 - [ ] **Teste 2:** Falhar com `SQLiteConstraintException` ao inserir transação com `categoryId` inexistente.
 - [ ] **Teste 3:** Impedir a deleção de uma categoria que possua transações vinculadas (`RESTRICT`).
 - [ ] **Teste 4:** Atualizar o saldo de um investimento e verificar a emissão do novo valor no `Flow`.
+- [ ] **Teste 5:** Inserir 3 parcelas com o mesmo `installmentGroupId` e validar que `getTransactionsByGroupId` retorna exatamente as 3 registros.

@@ -10,9 +10,12 @@
 
 ### Enums
 - `TransactionType`: `INCOME`, `EXPENSE`
-- `CategoryType`: `INCOME`, `EXPENSE`, `INVESTMENT`
+- `CategoryType`: `INCOME`, `EXPENSE`, `INVESTMENT` ¹
 - `PaymentMethod`: `CASH`, `DEBIT`, `CREDIT_CARD`, `PIX`
 - `InvestmentType`: `FIXED_INCOME`, `VARIABLE`
+- `InvestmentHorizon`: `SHORT` (Curto prazo), `MEDIUM` (Médio prazo), `LONG` (Longo prazo)
+
+> ¹ `CategoryType.INVESTMENT` é reservado para categorizar aportes de investimento nos relatórios (Spec 05), distinguindo-os de despesas comuns no cálculo de Caixa Livre ($C = R - D - I$). Transações do tipo `INCOME` e `EXPENSE` nunca usam essa categoria.
 
 ### Entidades
 
@@ -30,6 +33,7 @@
 - `type`: TransactionType
 - `paymentMethod`: PaymentMethod
 - `isEssential`: Boolean
+- `installmentGroupId`: String? (UUID, preenchido apenas quando `installmentsCount > 1`; identifica o grupo de parcelas)
 - `installmentsCount`: Int (padrão: 1)
 - `currentInstallment`: Int (padrão: 1)
 - `notes`: String?
@@ -38,5 +42,5 @@
 - `id`: Long (PK, autoGenerate)
 - `name`: String
 - `type`: InvestmentType
-- `horizon`: String (Curto, Médio, Longo)
+- `horizon`: InvestmentHorizon
 - `currentBalanceInCents`: Long

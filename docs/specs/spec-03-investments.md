@@ -15,7 +15,7 @@ Para manter o histórico de aportes sem depender apenas da atualização do sald
 - `notes`: String? (Opcional)
 
 ### 2.2. Enums de Domínio
-- `InvestmentHorizon`: `SHORT` (Curto prazo), `MEDIUM` (Médio prazo), `LONG` (Longo prazo)
+- `InvestmentHorizon`: `SHORT` (Curto prazo), `MEDIUM` (Médio prazo), `LONG` (Longo prazo) — mapeado para `String` no banco via `TypeConverter`.
 - `InvestmentType`: `FIXED_INCOME`, `VARIABLE`
 
 ## 3. Invariantes e Regras de Negócio
@@ -85,3 +85,18 @@ data class InvestmentDetail(
     val currentBalanceInCents: Long,
     val totalAportadoInCents: Long
 )
+
+## 5. Decisões de Design
+
+- **Atualização manual de saldo não é um aporte:** O `UpdateInvestmentBalanceUseCase` permite ao usuário refletir a posição atual de mercado (ex: cotação do fundo atualizada) sem registrar entrada de dinheiro novo. Isso mantém a separação clara entre rendimento (variação do valor) e capital aportado (dinheiro novo adicionado), permitindo calcular o rendimento real: $\text{rendimento} = \text{saldoAtual} - \sum\text{aportes}$.
+- **Saldo inicial como aporte automático:** Cadastrar um ativo com saldo inicial $> 0$ gera um `InvestmentContribution` automático para manter a consistência do histórico desde o primeiro dia.
+
+## 6. Critérios de Aceite (Testes Unitários Obrigatórios)
+
+- [ ] **Teste 1:** Falhar ao criar ativo com nome vazio ou contendo apenas espaços em branco.
+- [ ] **Teste 2:** Criar ativo com `initialAmountInCents = 1000` deve gerar automaticamente 1 registro em `InvestmentContribution` com o mesmo valor e timestamp.
+- [ ] **Teste 3:** Criar ativo com `initialAmountInCents = 0` não deve gerar nenhum `InvestmentContribution`.
+- [ ] **Teste 4:** `AddContributionUseCase` deve incrementar `currentBalanceInCents` pelo valor exato do aporte.
+- [ ] **Teste 5:** Falhar se `amountInCents <= 0` em `AddContributionUseCase`.
+- [ ] **Teste 6:** `UpdateInvestmentBalanceUseCase` atualiza o saldo sem alterar o histórico de aportes existentes.
+- [ ] **Teste 7:** `GetInvestmentsSummaryUseCase` calcula `totalYieldInCents = totalInvested - totalContributions` corretamente.

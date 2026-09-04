@@ -54,3 +54,18 @@ data class PeriodFinancialReport(
 interface GetFinancialReportUseCase {
     operator fun invoke(filter: TimeFilter): Flow<PeriodFinancialReport>
 }
+```
+
+## 4. Decisões de Design
+
+- **Sem paginação:** `GetTransactionsUseCase` retorna `Flow<List<Transaction>>` sem `PagingSource`. O volume de dados de uma pessoa física em uso pessoal é pequeno o suficiente para não justificar a complexidade de paginação. Caso o histórico cresça, essa decisão deve ser revisitada e a spec atualizada.
+- **Semana começa na segunda-feira:** O escopo `WEEK` usa segunda-feira como início de semana (padrão ISO 8601). Ajuste via `TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)`.
+
+## 5. Critérios de Aceite (Testes Unitários Obrigatórios)
+
+- [ ] **Teste 1:** `PeriodType.WEEK` — relatório gerado com `referenceDate` numa quinta-feira deve incluir apenas transações de segunda a domingo daquela semana.
+- [ ] **Teste 2:** `PeriodType.MONTH` — relatório de fevereiro não deve incluir transações de janeiro ou março.
+- [ ] **Teste 3:** `netBalanceInCents = totalIncomeInCents - totalExpenseInCents` calculado corretamente.
+- [ ] **Teste 4:** `freeCashInCents = netBalanceInCents - totalInvestedInCents` calculado corretamente.
+- [ ] **Teste 5:** A soma de `percentageOfTotal` de todas as entradas em `categoryExpenses` deve ser igual a 100.0 (tolerância de 0.01 por arredondamento).
+- [ ] **Teste 6:** `essentialExpenseInCents + nonEssentialExpenseInCents == totalExpenseInCents` sempre verdadeiro.

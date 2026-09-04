@@ -87,3 +87,15 @@ interface CopyBudgetUseCase {
         overrideExisting: Boolean = false
     ): Result<Int> // Retorna a quantidade de metas clonadas
 }
+```
+
+## 5. Critérios de Aceite (Testes Unitários Obrigatórios)
+
+- [ ] **Teste 1:** Falhar ao criar orçamento para categoria do tipo `INCOME` ou `INVESTMENT`.
+- [ ] **Teste 2:** Falhar se `plannedAmountInCents <= 0`.
+- [ ] **Teste 3:** Inserir dois orçamentos para a mesma `(year, month, categoryId)` deve resultar em upsert (atualização), não duplicata.
+- [ ] **Teste 4:** `isExceeded = true` quando `actualSpentInCents > plannedAmountInCents`.
+- [ ] **Teste 5:** `remainingInCents` deve ser negativo quando o orçamento é estourado.
+- [ ] **Teste 6:** `CopyBudgetUseCase` com `overrideExisting = false` não deve sobrescrever metas já existentes no mês destino; deve ignorar silenciosamente as duplicatas e retornar apenas a contagem de itens novos inseridos.
+- [ ] **Teste 7:** `CopyBudgetUseCase` com `overrideExisting = true` deve substituir metas existentes e retornar a contagem total copiada.
+- [ ] **Teste 8:** Copiar de um mês vazio (sem metas) deve retornar `Result.success(0)` sem erros.
