@@ -1,15 +1,24 @@
 package com.example.kofre.domain.usecase.transaction
 
+import com.example.kofre.data.local.backup.BackupPayloadDto
+import com.example.kofre.data.local.backup.CategoryBackupDto
+import com.example.kofre.data.local.backup.InvestmentBackupDto
+import com.example.kofre.data.local.backup.InvestmentContributionBackupDto
+import com.example.kofre.data.local.backup.MonthlyBudgetBackupDto
+import com.example.kofre.data.local.backup.TransactionBackupDto
 import com.example.kofre.data.local.enums.CategoryType
+import com.example.kofre.data.local.enums.InvestmentHorizon
+import com.example.kofre.data.local.enums.InvestmentType
+import com.example.kofre.data.local.enums.PaymentMethod
+import com.example.kofre.data.local.enums.TransactionType
 import com.example.kofre.domain.model.Category
 import com.example.kofre.domain.model.Investment
+import com.example.kofre.domain.model.InvestmentContribution
+import com.example.kofre.domain.model.MonthlyBudget
 import com.example.kofre.domain.model.Transaction
 import com.example.kofre.domain.repository.FinanceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-
-import com.example.kofre.domain.model.InvestmentContribution
-import com.example.kofre.domain.model.MonthlyBudget
 
 class FakeFinanceRepository : FinanceRepository {
 
@@ -164,6 +173,78 @@ class FakeFinanceRepository : FinanceRepository {
 
     override suspend fun deleteBudget(budgetId: Long) {
         budgets.removeAll { it.id == budgetId }
+    }
+
+    override suspend fun exportBackup(): BackupPayloadDto {
+        val catDtos = categories.map { CategoryBackupDto(it.id, it.name, it.type.name, it.parentId) }
+        val txDtos = transactions.map {
+            TransactionBackupDto(
+                id = it.id,
+                amountInCents = it.amountInCents,
+                timestamp = it.timestamp,
+                categoryId = it.categoryId,
+                type = it.type.name,
+                paymentMethod = it.paymentMethod.name,
+                isEssential = it.isEssential,
+                installmentGroupId = it.installmentGroupId,
+                installmentsCount = it.installmentsCount,
+                currentInstallment = it.currentInstallment,
+                notes = it.notes
+            )
+        }
+        val invDtos = investments.map { InvestmentBackupDto(it.id, it.name, it.type.name, it.horizon.name, it.currentBalanceInCents) }
+        val contribDtos = contributions.map { InvestmentContributionBackupDto(it.id, it.investmentId, it.amountInCents, it.timestamp, it.notes) }
+        val budgetDtos = budgets.map { MonthlyBudgetBackupDto(it.id, it.year, it.month, it.categoryId, it.plannedAmountInCents) }
+
+        return BackupPayloadDto(
+            version = 1,
+            exportedAt = System.currentTimeMillis(),
+            categories = catDtos,
+            transactions = txDtos,
+            investments = invDtos,
+            investmentContributions = contribDtos,
+            monthlyBudgets = budgetDtos
+        )
+    }
+
+    override suspend fun importBackup(payload: BackupPayloadDto) {
+        categories.clear()
+        transactions.clear()
+        investments.clear()
+        contributions.clear()
+        budgets.clear()
+
+        payload.categories.forEach { dto ->
+            categories.add(Category(dto.id, dto.name, CategoryType.valueOf(dto.type), dto.parentId))
+        }
+        payload.investments.forEach { dto ->
+            investments.add(Investment(dto.id, dto.name, InvestmentType.valueOf(dto.type), InvestmentHorizon.valueOf(dto.horizon), dto.currentBalanceInCents))
+        }
+        payload.transactions.forEach { dto ->
+            val cat = categories.find { c -> c.id == dto.categoryId }
+            transactions.add(
+                Transaction(
+                    id = dto.id,
+                    amountInCents = dto.amountInCents,
+                    timestamp = dto.timestamp,
+                    categoryId = dto.categoryId,
+                    category = cat,
+                    type = TransactionType.valueOf(dto.type),
+                    paymentMethod = PaymentMethod.valueOf(dto.paymentMethod),
+                    isEssential = dto.isEssential,
+                    installmentGroupId = dto.installmentGroupId,
+                    installmentsCount = dto.installmentsCount,
+                    currentInstallment = dto.currentInstallment,
+                    notes = dto.notes
+                )
+            )
+        }
+        payload.investmentContributions.forEach { dto ->
+            contributions.add(InvestmentContribution(dto.id, dto.investmentId, dto.amountInCents, dto.timestamp, dto.notes))
+        }
+        payload.monthlyBudgets.forEach { dto ->
+            budgets.add(MonthlyBudget(dto.id, dto.year, dto.month, dto.categoryId, dto.plannedAmountInCents))
+        }
     }
 }
 

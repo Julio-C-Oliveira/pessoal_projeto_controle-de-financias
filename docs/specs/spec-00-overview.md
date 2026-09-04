@@ -21,6 +21,9 @@ spec-02 + spec-03 + spec-04
               │
 spec-01 a spec-05
     └─► spec-06 (Backup e Restauração)
+
+spec-05 + spec-06
+    └─► spec-07 (Correção de Bugs de UX)
 \`\`\`
 
 > **Regra:** nunca inicie a implementação de uma spec sem que todas as suas dependências estejam com os Critérios de Aceite passando (testes verdes).
@@ -37,6 +40,7 @@ spec-01 a spec-05
 | 4 | [task-04](../tasks/task-04.md) | [spec-04](spec-04-budgeting.md) | task-01 |
 | 5 | [task-05](../tasks/task-05.md) | [spec-05](spec-05-ui-reports.md) | task-02, task-03, task-04 |
 | 6 | [task-06](../tasks/task-06.md) | [spec-06](spec-06-backup.md) | task-01 a task-05 |
+| 7 | [task-07](../tasks/task-07.md) | [spec-07](spec-07-ux-bugfix.md) | task-05, task-06 |
 
 ---
 
@@ -49,7 +53,8 @@ spec-01 a spec-05
 | [spec-03](spec-03-investments.md) | Investimentos e aportes | `[x]` concluída |
 | [spec-04](spec-04-budgeting.md) | Orçamento mensal | `[x]` concluída |
 | [spec-05](spec-05-ui-reports.md) | Relatórios e UI Compose | `[x]` concluída |
-| [spec-06](spec-06-backup.md) | Backup e restauração local | `[ ]` não iniciada |
+| [spec-06](spec-06-backup.md) | Backup e restauração local | `[x]` concluída |
+| [spec-07](spec-07-ux-bugfix.md) | Correção de bugs de usabilidade | `[ ]` pendente |
 
 > Atualize este campo para `[/]` ao iniciar e `[x]` ao concluir (todos os testes verdes).
 

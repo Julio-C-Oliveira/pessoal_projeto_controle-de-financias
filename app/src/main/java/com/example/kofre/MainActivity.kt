@@ -29,7 +29,8 @@ class MainActivity : ComponentActivity() {
             transactionDao = database.transactionDao(),
             investmentDao = database.investmentDao(),
             investmentContributionDao = database.investmentContributionDao(),
-            monthlyBudgetDao = database.monthlyBudgetDao()
+            monthlyBudgetDao = database.monthlyBudgetDao(),
+            database = database
         )
 
         setContent {

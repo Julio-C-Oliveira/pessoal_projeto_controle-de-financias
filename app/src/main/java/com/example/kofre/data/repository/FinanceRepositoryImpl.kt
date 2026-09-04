@@ -21,8 +21,14 @@ import com.example.kofre.domain.model.InvestmentContribution
 import com.example.kofre.domain.model.MonthlyBudget
 import com.example.kofre.domain.model.Transaction
 import com.example.kofre.domain.repository.FinanceRepository
+import androidx.room.withTransaction
+import com.example.kofre.data.local.AppDatabase
+import com.example.kofre.data.local.backup.BackupPayloadDto
+import com.example.kofre.data.local.backup.toBackupDto
+import com.example.kofre.data.local.backup.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
@@ -31,7 +37,8 @@ class FinanceRepositoryImpl(
     private val transactionDao: TransactionDao,
     private val investmentDao: InvestmentDao,
     private val investmentContributionDao: InvestmentContributionDao? = null,
-    private val monthlyBudgetDao: MonthlyBudgetDao? = null
+    private val monthlyBudgetDao: MonthlyBudgetDao? = null,
+    private val database: AppDatabase? = null
 ) : FinanceRepository {
 
     override fun getAllCategories(): Flow<List<Category>> {
@@ -281,5 +288,61 @@ class FinanceRepositoryImpl(
             plannedAmountInCents = plannedAmountInCents
         )
     }
+
+    override suspend fun exportBackup(): BackupPayloadDto {
+        val categories = categoryDao.getAllCategories().first().map { it.toBackupDto() }
+        val transactions = transactionDao.getAllTransactions().first().map { it.toBackupDto() }
+        val investments = investmentDao.getAllInvestments().first().map { it.toBackupDto() }
+        val contributions = investmentContributionDao?.getAllContributions()?.first()?.map { it.toBackupDto() } ?: emptyList()
+        val budgets = monthlyBudgetDao?.getAllBudgets()?.first()?.map { it.toBackupDto() } ?: emptyList()
+
+        return BackupPayloadDto(
+            version = 1,
+            exportedAt = System.currentTimeMillis(),
+            categories = categories,
+            transactions = transactions,
+            investments = investments,
+            investmentContributions = contributions,
+            monthlyBudgets = budgets
+        )
+    }
+
+    override suspend fun importBackup(payload: BackupPayloadDto) {
+        val performImport: suspend () -> Unit = {
+            // 1. Wipe in reverse foreign key order
+            monthlyBudgetDao?.deleteAllBudgets()
+            investmentContributionDao?.deleteAllContributions()
+            transactionDao.deleteAllTransactions()
+            investmentDao.deleteAllInvestments()
+            categoryDao.deleteSubcategories()
+            categoryDao.deleteAllCategories()
+
+            // 2. Insert in foreign key order
+            val (parents, children) = payload.categories.map { it.toEntity() }.partition { it.parentId == null }
+            if (parents.isNotEmpty()) categoryDao.insertCategories(parents)
+            if (children.isNotEmpty()) categoryDao.insertCategories(children)
+
+            val investments = payload.investments.map { it.toEntity() }
+            if (investments.isNotEmpty()) investmentDao.insertInvestments(investments)
+
+            val transactions = payload.transactions.map { it.toEntity() }
+            if (transactions.isNotEmpty()) transactionDao.insertTransactions(transactions)
+
+            val contributions = payload.investmentContributions.map { it.toEntity() }
+            if (contributions.isNotEmpty()) investmentContributionDao?.insertContributions(contributions)
+
+            val budgets = payload.monthlyBudgets.map { it.toEntity() }
+            if (budgets.isNotEmpty()) monthlyBudgetDao?.upsertBudgets(budgets)
+        }
+
+        if (database != null) {
+            database.withTransaction {
+                performImport()
+            }
+        } else {
+            performImport()
+        }
+    }
 }
+
 

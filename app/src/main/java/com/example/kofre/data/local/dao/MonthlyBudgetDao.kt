@@ -28,4 +28,7 @@ interface MonthlyBudgetDao {
 
     @Query("DELETE FROM monthly_budgets WHERE id = :id")
     suspend fun deleteBudgetById(id: Long)
+
+    @Query("DELETE FROM monthly_budgets")
+    suspend fun deleteAllBudgets()
 }

@@ -30,4 +30,7 @@ interface TransactionDao {
 
     @Query("DELETE FROM transactions WHERE installmentGroupId = :groupId")
     suspend fun deleteTransactionsByGroupId(groupId: String)
+
+    @Query("DELETE FROM transactions")
+    suspend fun deleteAllTransactions()
 }

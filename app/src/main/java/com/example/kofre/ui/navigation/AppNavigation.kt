@@ -36,6 +36,11 @@ import com.example.kofre.ui.screens.reports.ReportsViewModel
 import com.example.kofre.ui.screens.transactions.TransactionsScreen
 import com.example.kofre.ui.screens.transactions.TransactionsViewModel
 
+import com.example.kofre.domain.usecase.backup.ExportBackupUseCaseImpl
+import com.example.kofre.domain.usecase.backup.ImportBackupUseCaseImpl
+import com.example.kofre.ui.screens.backup.BackupScreen
+import com.example.kofre.ui.screens.backup.BackupViewModel
+
 @Composable
 fun AppNavigation(
     repository: FinanceRepository,
@@ -51,6 +56,8 @@ fun AppNavigation(
     val createInvestmentUseCase = CreateInvestmentUseCaseImpl(repository)
     val addContributionUseCase = AddContributionUseCaseImpl(repository)
     val updateInvestmentBalanceUseCase = UpdateInvestmentBalanceUseCaseImpl(repository)
+    val exportBackupUseCase = ExportBackupUseCaseImpl(repository)
+    val importBackupUseCase = ImportBackupUseCaseImpl(repository)
 
     // Instantiate ViewModels
     val dashboardViewModel = DashboardViewModel(repository, getFinancialReportUseCase)
@@ -64,6 +71,7 @@ fun AppNavigation(
         updateInvestmentBalanceUseCase
     )
     val reportsViewModel = ReportsViewModel(getFinancialReportUseCase)
+    val backupViewModel = BackupViewModel(exportBackupUseCase, importBackupUseCase)
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -111,6 +119,9 @@ fun AppNavigation(
             }
             composable(Screen.Reports.route) {
                 ReportsScreen(viewModel = reportsViewModel)
+            }
+            composable(Screen.Backup.route) {
+                BackupScreen(viewModel = backupViewModel)
             }
         }
     }

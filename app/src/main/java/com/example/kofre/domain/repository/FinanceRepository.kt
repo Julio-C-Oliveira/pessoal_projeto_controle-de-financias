@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.Flow
 import com.example.kofre.domain.model.InvestmentContribution
 import com.example.kofre.domain.model.MonthlyBudget
 
+import com.example.kofre.data.local.backup.BackupPayloadDto
+
 interface FinanceRepository {
     fun getAllCategories(): Flow<List<Category>>
     fun getCategoriesByType(type: CategoryType): Flow<List<Category>>
@@ -37,5 +39,9 @@ interface FinanceRepository {
     suspend fun insertBudget(budget: MonthlyBudget): Long
     suspend fun insertBudgets(budgets: List<MonthlyBudget>): List<Long>
     suspend fun deleteBudget(budgetId: Long)
+
+    suspend fun exportBackup(): BackupPayloadDto
+    suspend fun importBackup(payload: BackupPayloadDto)
 }
+
 
