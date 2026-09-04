@@ -4,21 +4,25 @@ import com.example.kofre.data.local.dao.CategoryDao
 import com.example.kofre.data.local.dao.InvestmentContributionDao
 import com.example.kofre.data.local.dao.InvestmentDao
 import com.example.kofre.data.local.dao.MonthlyBudgetDao
+import com.example.kofre.data.local.dao.RecurringTransactionDao
 import com.example.kofre.data.local.dao.TransactionDao
 import com.example.kofre.data.local.entity.CategoryEntity
 import com.example.kofre.data.local.entity.InvestmentContributionEntity
 import com.example.kofre.data.local.entity.InvestmentEntity
 import com.example.kofre.data.local.entity.MonthlyBudgetEntity
+import com.example.kofre.data.local.entity.RecurringTransactionEntity
 import com.example.kofre.data.local.entity.TransactionEntity
 import com.example.kofre.data.local.enums.CategoryType
 import com.example.kofre.data.local.enums.InvestmentHorizon
 import com.example.kofre.data.local.enums.InvestmentType
 import com.example.kofre.data.local.enums.PaymentMethod
+import com.example.kofre.data.local.enums.RecurrenceFrequency
 import com.example.kofre.data.local.enums.TransactionType
 import com.example.kofre.domain.model.Category
 import com.example.kofre.domain.model.Investment
 import com.example.kofre.domain.model.InvestmentContribution
 import com.example.kofre.domain.model.MonthlyBudget
+import com.example.kofre.domain.model.RecurringTransaction
 import com.example.kofre.domain.model.Transaction
 import com.example.kofre.domain.repository.FinanceRepository
 import androidx.room.withTransaction
@@ -38,6 +42,7 @@ class FinanceRepositoryImpl(
     private val investmentDao: InvestmentDao,
     private val investmentContributionDao: InvestmentContributionDao? = null,
     private val monthlyBudgetDao: MonthlyBudgetDao? = null,
+    private val recurringTransactionDao: RecurringTransactionDao? = null,
     private val database: AppDatabase? = null
 ) : FinanceRepository {
 
@@ -105,6 +110,33 @@ class FinanceRepositoryImpl(
 
     override suspend fun deleteTransactionsByGroupId(groupId: String) {
         transactionDao.deleteTransactionsByGroupId(groupId)
+    }
+
+    override fun getRecurringTransactions(): Flow<List<RecurringTransaction>> {
+        val dao = recurringTransactionDao ?: return flowOf(emptyList())
+        return combine(
+            dao.getAllRecurringTransactions(),
+            categoryDao.getAllCategories()
+        ) { recurringList: List<RecurringTransactionEntity>, categories: List<CategoryEntity> ->
+            val categoryMap = categories.associateBy { it.id }
+            recurringList.map { it.toDomain(categoryMap[it.categoryId]?.toDomainFlat()) }
+        }
+    }
+
+    override suspend fun insertRecurringTransaction(recurring: RecurringTransactionEntity): Long {
+        return recurringTransactionDao?.insert(recurring) ?: 0L
+    }
+
+    override suspend fun updateRecurringTransaction(recurring: RecurringTransactionEntity) {
+        recurringTransactionDao?.update(recurring)
+    }
+
+    override suspend fun deleteRecurringTransaction(id: Long) {
+        recurringTransactionDao?.deleteById(id)
+    }
+
+    override suspend fun getActiveRecurringEntities(): List<RecurringTransactionEntity> {
+        return recurringTransactionDao?.getActiveRecurringEntities() ?: emptyList()
     }
 
     override fun getAllInvestments(): Flow<List<Investment>> {
@@ -213,6 +245,7 @@ class FinanceRepositoryImpl(
             installmentGroupId = installmentGroupId,
             installmentsCount = installmentsCount,
             currentInstallment = currentInstallment,
+            recurringTransactionId = recurringTransactionId,
             notes = notes
         )
     }
@@ -229,6 +262,27 @@ class FinanceRepositoryImpl(
             installmentGroupId = installmentGroupId,
             installmentsCount = installmentsCount,
             currentInstallment = currentInstallment,
+            recurringTransactionId = recurringTransactionId,
+            notes = notes
+        )
+    }
+
+    private fun RecurringTransactionEntity.toDomain(category: Category?): RecurringTransaction {
+        return RecurringTransaction(
+            id = id,
+            amountInCents = amountInCents,
+            categoryId = categoryId,
+            category = category,
+            type = TransactionType.valueOf(type),
+            paymentMethod = PaymentMethod.valueOf(paymentMethod),
+            frequency = RecurrenceFrequency.valueOf(frequency),
+            startDate = startDate,
+            endDate = endDate,
+            totalOccurrences = totalOccurrences,
+            generatedCount = generatedCount,
+            lastGeneratedDate = lastGeneratedDate,
+            isActive = isActive,
+            isEssential = isEssential,
             notes = notes
         )
     }

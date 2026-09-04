@@ -4,6 +4,7 @@ import com.example.kofre.data.local.enums.CategoryType
 import com.example.kofre.data.local.enums.InvestmentHorizon
 import com.example.kofre.data.local.enums.InvestmentType
 import com.example.kofre.data.local.enums.PaymentMethod
+import com.example.kofre.data.local.enums.RecurrenceFrequency
 import com.example.kofre.data.local.enums.TransactionType
 
 data class Category(
@@ -26,6 +27,25 @@ data class Transaction(
     val installmentGroupId: String? = null,
     val installmentsCount: Int = 1,
     val currentInstallment: Int = 1,
+    val recurringTransactionId: Long? = null,
+    val notes: String? = null
+)
+
+data class RecurringTransaction(
+    val id: Long = 0,
+    val amountInCents: Long,
+    val categoryId: Long,
+    val category: Category? = null,
+    val type: TransactionType,
+    val paymentMethod: PaymentMethod,
+    val frequency: RecurrenceFrequency,
+    val startDate: Long,
+    val endDate: Long? = null,
+    val totalOccurrences: Int? = null,
+    val generatedCount: Int = 0,
+    val lastGeneratedDate: Long? = null,
+    val isActive: Boolean = true,
+    val isEssential: Boolean = false,
     val notes: String? = null
 )
 

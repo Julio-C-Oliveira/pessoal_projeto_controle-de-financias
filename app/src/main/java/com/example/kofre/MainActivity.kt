@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
             investmentDao = database.investmentDao(),
             investmentContributionDao = database.investmentContributionDao(),
             monthlyBudgetDao = database.monthlyBudgetDao(),
+            recurringTransactionDao = database.recurringTransactionDao(),
             database = database
         )
 

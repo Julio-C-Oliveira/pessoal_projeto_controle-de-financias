@@ -59,7 +59,7 @@ spec-02 + spec-07
 | [spec-05](spec-05-ui-reports.md) | Relatórios e UI Compose | `[x]` concluída |
 | [spec-06](spec-06-backup.md) | Backup e restauração local | `[x]` concluída |
 | [spec-07](spec-07-ux-bugfix.md) | Correção de bugs de usabilidade | `[x]` concluída |
-| [spec-08](spec-08-recurring-transactions.md) | Receitas e despesas recorrentes | `[/]` em andamento |
+| [spec-08](spec-08-recurring-transactions.md) | Receitas e despesas recorrentes | `[x]` concluída |
 
 > Atualize este campo para `[/]` ao iniciar e `[x]` ao concluir (todos os testes verdes).
 

@@ -36,6 +36,11 @@ import com.example.kofre.domain.usecase.investment.CreateInvestmentUseCaseImpl
 import com.example.kofre.domain.usecase.investment.DeleteInvestmentUseCaseImpl
 import com.example.kofre.domain.usecase.investment.GetInvestmentsSummaryUseCaseImpl
 import com.example.kofre.domain.usecase.investment.UpdateInvestmentBalanceUseCaseImpl
+import com.example.kofre.domain.usecase.recurring.CreateRecurringTransactionUseCaseImpl
+import com.example.kofre.domain.usecase.recurring.DeleteRecurringTransactionUseCaseImpl
+import com.example.kofre.domain.usecase.recurring.GetRecurringTransactionsUseCaseImpl
+import com.example.kofre.domain.usecase.recurring.ProcessDueRecurringTransactionsUseCaseImpl
+import com.example.kofre.domain.usecase.recurring.ToggleRecurringTransactionUseCaseImpl
 import com.example.kofre.domain.usecase.report.GetFinancialReportUseCaseImpl
 import com.example.kofre.domain.usecase.transaction.CreateTransactionUseCaseImpl
 import com.example.kofre.domain.usecase.transaction.DeleteTransactionUseCaseImpl
@@ -75,10 +80,24 @@ fun AppNavigation(
     val getCategoriesUseCase = GetCategoriesUseCaseImpl(repository)
     val addCategoryUseCase = AddCategoryUseCaseImpl(repository)
     val deleteCategoryUseCase = DeleteCategoryUseCaseImpl(repository)
+    val getRecurringTransactionsUseCase = GetRecurringTransactionsUseCaseImpl(repository)
+    val createRecurringTransactionUseCase = CreateRecurringTransactionUseCaseImpl(repository)
+    val toggleRecurringTransactionUseCase = ToggleRecurringTransactionUseCaseImpl(repository)
+    val deleteRecurringTransactionUseCase = DeleteRecurringTransactionUseCaseImpl(repository)
+    val processDueRecurringTransactionsUseCase = ProcessDueRecurringTransactionsUseCaseImpl(repository)
 
     // Instantiate ViewModels
     val dashboardViewModel = DashboardViewModel(repository, getFinancialReportUseCase)
-    val transactionsViewModel = TransactionsViewModel(repository, createTransactionUseCase, deleteTransactionUseCase)
+    val transactionsViewModel = TransactionsViewModel(
+        repository,
+        createTransactionUseCase,
+        deleteTransactionUseCase,
+        getRecurringTransactionsUseCase,
+        createRecurringTransactionUseCase,
+        toggleRecurringTransactionUseCase,
+        deleteRecurringTransactionUseCase,
+        processDueRecurringTransactionsUseCase
+    )
     val budgetViewModel = BudgetViewModel(repository, getMonthlyBudgetOverviewUseCase, setCategoryBudgetUseCase)
     val investmentsViewModel = InvestmentsViewModel(
         repository,

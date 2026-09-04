@@ -6,7 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "transactions",
+    tableName = "recurring_transactions",
     foreignKeys = [
         ForeignKey(
             entity = CategoryEntity::class,
@@ -16,23 +16,23 @@ import androidx.room.PrimaryKey
         )
     ],
     indices = [
-        Index(value = ["categoryId"]),
-        Index(value = ["installmentGroupId"]),
-        Index(value = ["recurringTransactionId"])
+        Index(value = ["categoryId"])
     ]
 )
-data class TransactionEntity(
+data class RecurringTransactionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val amountInCents: Long,
-    val timestamp: Long,
     val categoryId: Long,
     val type: String,
     val paymentMethod: String,
+    val frequency: String,
+    val startDate: Long,
+    val endDate: Long? = null,
+    val totalOccurrences: Int? = null,
+    val generatedCount: Int = 0,
+    val lastGeneratedDate: Long? = null,
+    val isActive: Boolean = true,
     val isEssential: Boolean = false,
-    val installmentGroupId: String? = null,
-    val installmentsCount: Int = 1,
-    val currentInstallment: Int = 1,
-    val recurringTransactionId: Long? = null,
     val notes: String? = null
 )

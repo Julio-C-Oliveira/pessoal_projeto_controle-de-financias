@@ -11,6 +11,9 @@ import com.example.kofre.domain.model.MonthlyBudget
 
 import com.example.kofre.data.local.backup.BackupPayloadDto
 
+import com.example.kofre.data.local.entity.RecurringTransactionEntity
+import com.example.kofre.domain.model.RecurringTransaction
+
 interface FinanceRepository {
     fun getAllCategories(): Flow<List<Category>>
     fun getCategoriesByType(type: CategoryType): Flow<List<Category>>
@@ -24,6 +27,12 @@ interface FinanceRepository {
     suspend fun insertTransactions(transactions: List<Transaction>): List<Long>
     suspend fun deleteTransaction(transaction: Transaction)
     suspend fun deleteTransactionsByGroupId(groupId: String)
+
+    fun getRecurringTransactions(): Flow<List<RecurringTransaction>>
+    suspend fun insertRecurringTransaction(recurring: RecurringTransactionEntity): Long
+    suspend fun updateRecurringTransaction(recurring: RecurringTransactionEntity)
+    suspend fun deleteRecurringTransaction(id: Long)
+    suspend fun getActiveRecurringEntities(): List<RecurringTransactionEntity>
 
     fun getAllInvestments(): Flow<List<Investment>>
     fun getInvestmentById(id: Long): Flow<Investment?>

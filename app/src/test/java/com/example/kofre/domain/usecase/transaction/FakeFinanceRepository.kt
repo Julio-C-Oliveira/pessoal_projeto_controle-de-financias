@@ -6,15 +6,18 @@ import com.example.kofre.data.local.backup.InvestmentBackupDto
 import com.example.kofre.data.local.backup.InvestmentContributionBackupDto
 import com.example.kofre.data.local.backup.MonthlyBudgetBackupDto
 import com.example.kofre.data.local.backup.TransactionBackupDto
+import com.example.kofre.data.local.entity.RecurringTransactionEntity
 import com.example.kofre.data.local.enums.CategoryType
 import com.example.kofre.data.local.enums.InvestmentHorizon
 import com.example.kofre.data.local.enums.InvestmentType
 import com.example.kofre.data.local.enums.PaymentMethod
+import com.example.kofre.data.local.enums.RecurrenceFrequency
 import com.example.kofre.data.local.enums.TransactionType
 import com.example.kofre.domain.model.Category
 import com.example.kofre.domain.model.Investment
 import com.example.kofre.domain.model.InvestmentContribution
 import com.example.kofre.domain.model.MonthlyBudget
+import com.example.kofre.domain.model.RecurringTransaction
 import com.example.kofre.domain.model.Transaction
 import com.example.kofre.domain.repository.FinanceRepository
 import kotlinx.coroutines.flow.Flow
@@ -24,12 +27,14 @@ class FakeFinanceRepository : FinanceRepository {
 
     private val categories = mutableListOf<Category>()
     private val transactions = mutableListOf<Transaction>()
+    private val recurringTransactions = mutableListOf<RecurringTransactionEntity>()
     private val investments = mutableListOf<Investment>()
     private val contributions = mutableListOf<InvestmentContribution>()
     private val budgets = mutableListOf<MonthlyBudget>()
 
     private var nextCategoryId = 1L
     private var nextTransactionId = 1L
+    private var nextRecurringId = 1L
     private var nextInvestmentId = 1L
     private var nextContributionId = 1L
     private var nextBudgetId = 1L
@@ -98,6 +103,52 @@ class FakeFinanceRepository : FinanceRepository {
         transactions.removeAll { it.installmentGroupId == groupId }
     }
 
+    override fun getRecurringTransactions(): Flow<List<RecurringTransaction>> {
+        val domainList = recurringTransactions.map { entity ->
+            val cat = categories.find { it.id == entity.categoryId }
+            RecurringTransaction(
+                id = entity.id,
+                amountInCents = entity.amountInCents,
+                categoryId = entity.categoryId,
+                category = cat,
+                type = TransactionType.valueOf(entity.type),
+                paymentMethod = PaymentMethod.valueOf(entity.paymentMethod),
+                frequency = RecurrenceFrequency.valueOf(entity.frequency),
+                startDate = entity.startDate,
+                endDate = entity.endDate,
+                totalOccurrences = entity.totalOccurrences,
+                generatedCount = entity.generatedCount,
+                lastGeneratedDate = entity.lastGeneratedDate,
+                isActive = entity.isActive,
+                isEssential = entity.isEssential,
+                notes = entity.notes
+            )
+        }
+        return flowOf(domainList)
+    }
+
+    override suspend fun insertRecurringTransaction(recurring: RecurringTransactionEntity): Long {
+        val id = if (recurring.id == 0L) nextRecurringId++ else recurring.id
+        val newEntity = recurring.copy(id = id)
+        recurringTransactions.add(newEntity)
+        return id
+    }
+
+    override suspend fun updateRecurringTransaction(recurring: RecurringTransactionEntity) {
+        val index = recurringTransactions.indexOfFirst { it.id == recurring.id }
+        if (index != -1) {
+            recurringTransactions[index] = recurring
+        }
+    }
+
+    override suspend fun deleteRecurringTransaction(id: Long) {
+        recurringTransactions.removeAll { it.id == id }
+    }
+
+    override suspend fun getActiveRecurringEntities(): List<RecurringTransactionEntity> {
+        return recurringTransactions.filter { it.isActive }
+    }
+
     override fun getAllInvestments(): Flow<List<Investment>> {
         return flowOf(investments.toList())
     }
@@ -119,6 +170,10 @@ class FakeFinanceRepository : FinanceRepository {
         if (index != -1) {
             investments[index] = investments[index].copy(currentBalanceInCents = newBalanceInCents)
         }
+    }
+
+    override suspend fun deleteInvestment(id: Long) {
+        investments.removeAll { it.id == id }
     }
 
     override fun getAllContributions(): Flow<List<InvestmentContribution>> {
